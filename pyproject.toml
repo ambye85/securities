@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "securities"
+version = "0.1.0"
+description = ""
+authors = ["Ashley Morton-Bye"]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+
+[tool.poetry.dev-dependencies]
+pytest = "^6.1.1"
+
+[tool.poetry.scripts]
+cli = "securities:main"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
