@@ -13,14 +13,28 @@ Running the securities tool locally requires the following pre-requisites to be 
 The securities tool can be run using your system installed Python 3:
 
 ```shell script
-./securities.py
+./securities.py '{
+    "expression": {
+      "fn": "-",
+      "a": {"fn": "-", "a": "eps", "b": "shares"},
+      "b": {"fn": "-", "a": "assets", "b": "liabilities"}
+    },
+    "security": "CDE"
+}'
 ```
 
 You can also execute securities from within a Poetry environment:
 
 ```shell script
 poetry install
-poetry run cli
+poetry run cli '{
+    "expression": {
+      "fn": "-",
+      "a": {"fn": "-", "a": "eps", "b": "shares"},
+      "b": {"fn": "-", "a": "assets", "b": "liabilities"}
+    },
+    "security": "CDE"
+}'
 ```
 
 ## Testing

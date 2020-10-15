@@ -1,12 +1,13 @@
 #!/usr/bin/env python
 from __future__ import annotations
 
+import argparse
 import csv
 import dataclasses
 import json
 from collections import defaultdict
 from dataclasses import dataclass
-from typing import Dict, List
+from typing import Dict, List, Union
 
 
 def build_securities(
@@ -50,22 +51,24 @@ class Interpreter:
         expression_tree = self._parse(query['expression'], security)
         return self._evaluate(expression_tree)
 
-    def _parse(self, expression: Dict, security: Security):
+    def _parse(self, expression: Dict, security: Security) -> Dict:
         return {
             'operator': expression['fn'],
             'a': self._evaluate_operand(expression['a'], security),
             'b': self._evaluate_operand(expression['b'], security),
         }
 
-    def _evaluate_operand(self, exp, security):
-        if type(exp) == dict:
-            return self._parse(exp, security)
-        elif type(exp) == float or type(exp) == int:
-            return float(exp)
+    def _evaluate_operand(
+            self, expression: Union[int, float, str, Dict], security: Security
+    ) -> Union[float, str, Dict]:
+        if type(expression) == dict:
+            return self._parse(expression, security)
+        elif type(expression) == float or type(expression) == int:
+            return float(expression)
         else:
-            return dataclasses.asdict(security)[exp]
+            return dataclasses.asdict(security)[expression]
 
-    def _evaluate(self, expression):
+    def _evaluate(self, expression: Union[float, str, Dict]) -> float:
         if type(expression) == float:
             return expression
 
@@ -89,23 +92,19 @@ def load_csv(path: str) -> List[Dict]:
     return lines
 
 
-def main():
+def main() -> None:
+    """Currently only supports happy path."""
+    parser = argparse.ArgumentParser()
+    parser.add_argument('query', help='the query to perform')
+    args = parser.parse_args()
+
     raw_securities = load_csv('securities.csv')
     raw_attributes = load_csv('attributes.csv')
     raw_facts = load_csv('facts.csv')
 
-    query = """{
-        "expression": {
-            "fn": "-", 
-            "a": {"fn": "-", "a": "eps", "b": "shares"}, 
-            "b": {"fn": "-", "a": "assets", "b": "liabilities"}
-        },
-        "security": "CDE"
-    }"""
-
     securities = build_securities(raw_securities, raw_attributes, raw_facts)
     interpreter = Interpreter(securities)
-    result = interpreter.execute(json.loads(query))
+    result = interpreter.execute(json.loads(args.query))
     print(result)
 
 
